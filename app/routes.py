@@ -69,6 +69,17 @@ def update():
             
     return {'status': 'ok'}
 
+@app.route("/get", methods = ['GET'])
+def get():
+    user = User.query.filter_by(token=request.headers['Authorization'].split()[-1]).first()
+    if not user:
+        return {
+            'status': 'not ok',
+            'message': "That token does not belong to a valid user"
+        }
+    c = Character.query.filter_by(owner=user.id).all()        
+    return {'status': 'ok', 'data':[d.to_dict() for d in c]}
+
 @app.route("/delete/<int:character_id>", methods = ['DELETE'])
 def delete(character_id):
     user = User.query.filter_by(token=request.headers['Authorization'].split()[-1]).first()
@@ -88,6 +99,29 @@ def delete(character_id):
 def get_user():
     return {'test':'test'}
 
+@app.route("/login", methods = ['POST'])
+def login_user():
+    payload = request.json
+    email = payload['email']
+    password = payload['password']
+    user = User.query.filter_by(email = email).first()
+    if user:
+        if user.check_password(password):
+            return {
+                'user': user.to_dict(),
+                'status' : "ok"
+                }
+        else:
+            return {
+                'status': 'not ok',
+                'msg': 'incorrect password'
+            }
+    else:
+        return {
+            'status': 'not ok',
+            'msg': 'user does not exist'
+        }
+        
 @app.route("/user/create", methods = ['POST'])
 def create_user():
     payload = request.json

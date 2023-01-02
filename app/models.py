@@ -21,10 +21,22 @@ class User(db.Model):
     def save_to_db(self):
         db.session.add(self)
         db.session.commit()
-
+    def check_password(self, password):
+        return check_password_hash(self.password, password)
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'email': self.email,
+            'password': self.password,
+            'token': self.token,
+            'date_created': self.date_created
+        }
+        
     
 
 class Character(db.Model):
+    
     id = db.Column(db.Integer, primary_key = True, nullable=False)
     name = db.Column(db.String(150), nullable = True, default='')
     description = db.Column(db.String(150), nullable = False)
@@ -47,7 +59,15 @@ class Character(db.Model):
     def delete_from_db(self):
         db.session.delete(self)
         db.session.commit()
-
+    def to_dict(self):
+        return {
+            'id':self.id,
+            'name': self.name,
+            'description': self.description,
+            'comics_appeared_in': self.comics_appeared_in,
+            'power': self.power,
+            'date_created': self.date_created
+        }
     
     
 
